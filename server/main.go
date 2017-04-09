@@ -49,10 +49,12 @@ func setupDB()  *sql.DB {
 }
 
 func main() {
+	var apiInstance api.API
 	db := setupDB()
 	defer db.Close()
+	apiInstance.Setup(db)
 	mux := goji.NewMux()
-	mux.HandleFunc(pat.Get("/v1/:workout"), api.Hello)
+	mux.HandleFunc(pat.Post("/v1/workout"), apiInstance.CreateWorkout)
 
 	http.ListenAndServe("localhost:8000", mux)
 }
