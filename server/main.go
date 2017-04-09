@@ -11,6 +11,7 @@ import (
 	_ "github.com/lib/pq"
 	"os"
 	"fmt"
+	"io/ioutil"
 )
 
 type DBConfig struct {
@@ -20,26 +21,36 @@ type DBConfig struct {
 	DBName string
 }
 
-func getDBConfig() DBConfig {
-	file, _ := os.Open("config.json")
-	decoder := json.NewDecoder(file)
+func getDBConfig() *DBConfig {
 	config := &DBConfig{}
-	err := decoder.Decode(config)
+	file, err := ioutil.ReadFile("db_config.json")
 	if err != nil {
-		fmt.Println("error:", err)
-		return nil
+		fmt.Printf("File error: %v\n", err)
+		os.Exit(1)
 	}
+	json.Unmarshal(file, config)
 	return config
 }
 
-func setupDB(config *DBConfig) {
+func setupDB()  *sql.DB {
+	config := getDBConfig()
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s dbname=%s sslmode=disable",
 		config.Host, config.Port, config.User, config.DBName)
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		panic(err)
+	}
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("DB Connection Successful")
+	return db
 }
 
 func main() {
-	config := getDBConfig()
-	setupDB(config)
+	db := setupDB()
+	defer db.Close()
 	mux := goji.NewMux()
 	mux.HandleFunc(pat.Get("/v1/:workout"), api.Hello)
 
