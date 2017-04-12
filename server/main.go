@@ -1,23 +1,24 @@
 package main
 
 import (
-	"net/http"
 	"database/sql"
 	"encoding/json"
+	"net/http"
 
-	"goji.io"
-	"goji.io/pat"
-	"github.com/loganbestwick/kula/server/api"
-	_ "github.com/lib/pq"
-	"os"
 	"fmt"
 	"io/ioutil"
+	"os"
+
+	_ "github.com/lib/pq"
+	"github.com/loganbestwick/kula/server/api"
+	"goji.io"
+	"goji.io/pat"
 )
 
 type DBConfig struct {
-	Host string
-	Port int
-	User string
+	Host   string
+	Port   int
+	User   string
 	DBName string
 }
 
@@ -32,7 +33,7 @@ func getDBConfig() *DBConfig {
 	return config
 }
 
-func setupDB()  *sql.DB {
+func setupDB() *sql.DB {
 	config := getDBConfig()
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s dbname=%s sslmode=disable",
 		config.Host, config.Port, config.User, config.DBName)
