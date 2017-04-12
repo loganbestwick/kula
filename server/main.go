@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
-
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -55,6 +54,7 @@ func main() {
 	defer db.Close()
 	apiInstance.Setup(db)
 	mux := goji.NewMux()
+	mux.HandleFunc(pat.Get("/v1/workout/:id"), apiInstance.GetWorkout)
 	mux.HandleFunc(pat.Post("/v1/workout"), apiInstance.CreateWorkout)
 
 	http.ListenAndServe("localhost:8000", mux)
